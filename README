@@ -1,3 +1,6 @@
-This is a mirror of http://www.vim.org/scripts/script.php?script_id=669
+This is a mirror of http://www.vim.org/scripts/script.php?script_id=1189
 
-I have no comment, just you know.
+Matrix screensaver for VIM, inspired by Chris Allegretta's cmatrix.
+
+Also available on github for Vundle users:
+https://github.com/uguu-org/vim-matrix-screensaver
