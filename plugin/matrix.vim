@@ -10,8 +10,6 @@
 " machine speed and window size.
 "
 "Known Issues:
-" First undo after returning to original buffer causes a bell.
-"
 " Sometimes you need to press keys a few times to exit instead of just
 " once.  Press and hold is another way to go... feels like getchar is
 " checking for keypress state instead of keystroke availability.
@@ -28,12 +26,14 @@
 " Inspired by cmatrix...
 " Didn't feel inspired enough to start using pico/nano, of course ^_^;
 "
+" 01/27/05 - added sleep to consume less CPU
+"            removed frame counter
 " 01/26/05 - initial version
 
 
 " Speed range, must be positive.  Lower delay = faster.
-let s:mindelay = 5
-let s:maxdelay = 25
+let s:mindelay = 1
+let s:maxdelay = 5
 
 " Temporary buffer name.
 let s:tmpfile = tempname()
@@ -114,7 +114,7 @@ function! s:Animate()
    if getchar(1)
       let b:run = 0
    endif
-   let s:frames = s:frames + 1
+   sleep 20m
 endfunction
 
 function! s:Reset()
@@ -206,9 +206,7 @@ function! s:Init()
    set ch=1 ls=0 lz nosmd siso=0 so=0 ve=all
 
    " Initialize PRNG
-   let s:time = localtime()
-   let s:frames = 0
-   let b:seed = s:time
+   let b:seed = localtime()
    let b:run = 1
 
    " Clear screen and initialize objects
@@ -266,31 +264,13 @@ function! s:Cleanup()
    let &ve = s:o_ve
    unlet s:o_ch s:o_ls s:o_lz s:o_siso s:o_smd s:o_so s:o_ve
 
-   " Restore old buffer.  Try split and restore first (so that the FPS
-   " is displayed properly).  If that doesn't work then just switch
-   " the current buffer.
-   if bufname(s:oldbuf)
-      silent! exec 'new ' . bufname(s:oldbuf)
-   endif
-   if winbufnr(0) != s:oldbuf
-      exec 'b! ' . s:oldbuf
-      exec 'bwipe ' . s:newbuf
-   else
-      wincmd w
-      bwipe
-   endif
+   " Restore old buffer
+   exec 'b! ' . s:oldbuf
+   exec 'bwipe ' . s:newbuf
    unlet s:oldbuf s:newbuf
 
    " Clear keystroke
    let c = getchar(0)
-
-   " Display framerate.
-   let s:time = localtime() - s:time
-   if s:time > 0
-      echo s:frames / s:time . 'fps'
-      redraw
-   endif
-   unlet s:time
 endfunction
 
 function! Matrix()
