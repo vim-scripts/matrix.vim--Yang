@@ -26,6 +26,7 @@
 " Inspired by cmatrix...
 " Didn't feel inspired enough to start using pico/nano, of course ^_^;
 "
+" 03/16/05 - make new buffer modifiable before running
 " 01/27/05 - added sleep to consume less CPU
 "            removed frame counter
 " 01/26/05 - initial version
@@ -177,7 +178,7 @@ function! s:Init()
    if winbufnr(0) != s:newbuf
       return 1
    endif
-   setl bh=delete bt=nofile nolist nonu noswf tw=0 nowrap
+   setl bh=delete bt=nofile ma nolist nonu noro noswf tw=0 nowrap
    wincmd w
    hide
 
