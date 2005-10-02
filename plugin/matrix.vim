@@ -26,6 +26,7 @@
 " Inspired by cmatrix...
 " Didn't feel inspired enough to start using pico/nano, of course ^_^;
 "
+" 10/02/05 - disable showmatch
 " 03/16/05 - make new buffer modifiable before running
 " 01/27/05 - added sleep to consume less CPU
 "            removed frame counter
@@ -201,10 +202,11 @@ function! s:Init()
    let s:o_ls = &ls
    let s:o_lz = &lz
    let s:o_siso = &siso
+   let s:o_sm = &sm
    let s:o_smd = &smd
    let s:o_so = &so
    let s:o_ve = &ve
-   set ch=1 ls=0 lz nosmd siso=0 so=0 ve=all
+   set ch=1 ls=0 lz nosm nosmd siso=0 so=0 ve=all
 
    " Initialize PRNG
    let b:seed = localtime()
@@ -260,10 +262,11 @@ function! s:Cleanup()
    let &ls = s:o_ls
    let &lz = s:o_lz
    let &siso = s:o_siso
+   let &sm = s:o_sm
    let &smd = s:o_smd
    let &so = s:o_so
    let &ve = s:o_ve
-   unlet s:o_ch s:o_ls s:o_lz s:o_siso s:o_smd s:o_so s:o_ve
+   unlet s:o_ch s:o_ls s:o_lz s:o_siso s:o_sm s:o_smd s:o_so s:o_ve
 
    " Restore old buffer
    exec 'b! ' . s:oldbuf
