@@ -26,6 +26,9 @@
 " Inspired by cmatrix...
 " Didn't feel inspired enough to start using pico/nano, of course ^_^;
 "
+" 10/03/05 - added silent! to cursor positioning code to stop drawing
+"            numbers during animation (thanks to David Eggum for the
+"            suggestion).
 " 10/02/05 - disable showmatch
 " 03/16/05 - make new buffer modifiable before running
 " 01/27/05 - added sleep to consume less CPU
@@ -70,24 +73,24 @@ function! s:DrawObject(i)
    " Draw head
    if y <= b:h
       if b:head{a:i}
-         exec 'norm! :' . y . nr2char(13) . x . '|R' . b:d[s:Rand()%b:dl] . '_' . nr2char(27)
+         silent! exec 'norm! :' . y . nr2char(13) . x . '|R' . b:d[s:Rand()%b:dl] . '_' . nr2char(27)
          if y > 1
-            exec 'norm! kR' . ((s:Rand() % 2) ? '`' : ' ') . nr2char(27)
+            silent! exec 'norm! kR' . ((s:Rand() % 2) ? '`' : ' ') . nr2char(27)
          endif
       else
          let a = ((s:Rand() % 2) ? '`' : ' ') . nr2char(27)
-         exec 'norm! :'. y . nr2char(13) . x . '|R' . b:d[s:Rand() % b:dl] . a
+         silent! exec 'norm! :'. y . nr2char(13) . x . '|R' . b:d[s:Rand() % b:dl] . a
       endif
    else
       if b:head{a:i} && y == b:h + 1
-         exec 'norm! :' . b:h . nr2char(13) . (x + 1) . '|R' . ((s:Rand() % 2) ? '`' : ' ') . nr2char(27)
+         silent! exec 'norm! :' . b:h . nr2char(13) . (x + 1) . '|R' . ((s:Rand() % 2) ? '`' : ' ') . nr2char(27)
       endif
    endif
 
    " Draw tail
    let y = y - b:len{a:i}
    if 1 <= y && y <= b:h
-      exec 'norm! :'. y . nr2char(13) . x . '|R  ' . nr2char(27)
+      silent! exec 'norm! :'. y . nr2char(13) . x . '|R  ' . nr2char(27)
    endif
    let b:reserve{b:x{a:i}} = y
 endfunction
