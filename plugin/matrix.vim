@@ -26,6 +26,7 @@
 " Inspired by cmatrix...
 " Didn't feel inspired enough to start using pico/nano, of course ^_^;
 "
+" 12/21/06 - multiwindow support by S. Lockwood-Childs.
 " 10/03/05 - added silent! to cursor positioning code to stop drawing
 "            numbers during animation (thanks to David Eggum for the
 "            suggestion).
@@ -40,8 +41,8 @@
 let s:mindelay = 1
 let s:maxdelay = 5
 
-" Temporary buffer name.
-let s:tmpfile = tempname()
+" Session file for preserving original window layout
+let s:session_file = tempname()
 
 
 function! s:Rand()
@@ -160,31 +161,28 @@ function! s:Reset()
    endwhile
 endfunction
 
-function! s:DetectSplit()
-   let i = winnr()
-   silent! wincmd w
-   let j = winnr()
-   silent! wincmd W
-   if i != j
-      return 1
-   else
-      return 0
-   endif
-endfunction
-
 function! s:Init()
-   " Create new buffer and hide the current buffer.  Hiding the
-   " current buffer without switching to a new buffer preserves
+   " Create new buffer and hide the existing buffers.  Hiding the
+   " existing buffers without switching to a new buffer preserves
    " undo history.
-   let s:oldbuf = bufnr('%')
-   silent! exec 'new ' . s:tmpfile
-   let s:newbuf = bufnr(s:tmpfile)
-   if winbufnr(0) != s:newbuf
+   exec 'mksession! ' . s:session_file
+   let s:num_orig_win = winnr("$")
+
+   " move to top window, so created window will become window 1,
+   " then attempt to create new window
+   1 wincmd w
+   silent! new
+
+   " check that there really is an additional window
+   if winnr("$") != s:num_orig_win + 1
       return 1
    endif
+   let s:newbuf = bufnr('%')
+
+   " close all but window 1, which is the new window
+   only
+
    setl bh=delete bt=nofile ma nolist nonu noro noswf tw=0 nowrap
-   wincmd w
-   hide
 
    " Set GUI options
    if has('gui')
@@ -271,22 +269,16 @@ function! s:Cleanup()
    let &ve = s:o_ve
    unlet s:o_ch s:o_ls s:o_lz s:o_siso s:o_sm s:o_smd s:o_so s:o_ve
 
-   " Restore old buffer
-   exec 'b! ' . s:oldbuf
+   " Restore old buffers
+   exec 'source ' . s:session_file
    exec 'bwipe ' . s:newbuf
-   unlet s:oldbuf s:newbuf
+   unlet s:newbuf
 
    " Clear keystroke
    let c = getchar(0)
 endfunction
 
 function! Matrix()
-   if s:DetectSplit()
-      echohl ErrorMsg
-      echon 'Multiple windows opened'
-      echohl None
-      return
-   endif
    if s:Init()
       echohl ErrorMsg
       echon 'Can not create window'
