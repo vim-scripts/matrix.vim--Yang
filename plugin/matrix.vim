@@ -22,10 +22,16 @@
 " Doesn't work if multiple windows exist before script started.  In
 " that case the script will abort with error message.
 "
+" If the current buffer is modified, some error messages will appear
+" before the script starts, and an extra window is left behind after
+" the script exits.  Workaround: save your buffers first.
+"
 "Other Info:
 " Inspired by cmatrix...
 " Didn't feel inspired enough to start using pico/nano, of course ^_^;
 "
+" 05/13/08 - disable cursorline, cursorcolumn and spell
+"            (thanks to Diederick Niehorster for the suggestion).
 " 12/21/06 - multiwindow support by S. Lockwood-Childs.
 " 10/03/05 - added silent! to cursor positioning code to stop drawing
 "            numbers during animation (thanks to David Eggum for the
@@ -199,6 +205,12 @@ function! s:Init()
       let s:o_ts = &titlestring
       exec 'set titlestring=\ '
    endif
+   if v:version >= 700
+      let s:o_spell = &spell
+      let s:o_cul = &cul
+      let s:o_cuc = &cuc
+      set nospell nocul nocuc
+   endif
    let s:o_ch = &ch
    let s:o_ls = &ls
    let s:o_lz = &lz
@@ -259,6 +271,12 @@ function! s:Cleanup()
       let &titlestring = s:o_ts
       unlet s:o_ts
    endif
+   if v:version >= 700
+      let &spell = s:o_spell
+      let &cul = s:o_cul
+      let &cuc = s:o_cuc
+      unlet s:o_cul s:o_cuc
+   endif
    let &ch = s:o_ch
    let &ls = s:o_ls
    let &lz = s:o_lz
@@ -298,9 +316,9 @@ function! Matrix()
 endfunction
 
 
-if !has('virtualedit') || !has('windows')
+if !has('virtualedit') || !has('windows') || !has('syntax')
    echohl ErrorMsg
-   echon 'Not enough features, need at least +virtualedit and +windows'
+   echon 'Not enough features, need at least +virtualedit, +windows and +syntax'
    echohl None
 else
    command! Matrix call Matrix()
